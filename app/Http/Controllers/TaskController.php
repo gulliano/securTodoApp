@@ -12,8 +12,10 @@ class TaskController extends Controller
      */
     public function index()
     {
-        //
-        return view('tasks.index');
+       // Récupérer les taches de l'utilisateur connecté
+        $tasks = auth()->user()->tasks()->get() ;
+
+        return view('tasks.index' , compact('tasks'));
     }
 
     /**
@@ -29,7 +31,20 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Vérification des données
+        $data = $request->validate([
+            'title' => 'required|string|max:150',//
+        ]);
+
+        $data['state'] = false ;
+
+       // Création de la tache en utilisant auth() 
+        auth()->user()->tasks()->create($data) ;
+
+      
+        //  redirection vers index task
+        return redirect()->route('task.index') ;
+        
     }
 
     /**
@@ -62,5 +77,11 @@ class TaskController extends Controller
     public function destroy(Task $task)
     {
         //
+     
+       auth()->user()->tasks()->findOrFail($task->id)->delete();
+
+       return redirect()->route('task.index') ;
+
+
     }
 }
